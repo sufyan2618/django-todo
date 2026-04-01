@@ -31,3 +31,63 @@ def task_create(request):
         "message": "Failed to create task",
         "errors": serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def task_detail(request, pk):
+    try:
+        task = Task.objects.get(pk=pk)
+    except Task.DoesNotExist:
+        return Response({
+            "success": False,
+            "message": "Task not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = TaskSerializer(task)
+    return Response({
+        "success": True,
+        "message": "Task retrieved successfully",
+        "data": serializer.data
+    })
+
+@api_view(['PUT'])
+def task_update(request, pk):
+    try:
+        task = Task.objects.get(pk=pk)
+    except Task.DoesNotExist:
+        return Response({
+            "success": False,
+            "message": "Task not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = TaskSerializer(task, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "success": True,
+            "message": "Task updated successfully",
+            "data": serializer.data
+        })
+    return Response({
+        "success": False,
+        "message": "Failed to update task",
+        "errors": serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def task_delete(request, pk):
+    try:
+        task = Task.objects.get(pk=pk)
+    except Task.DoesNotExist:
+        return Response({
+            "success": False,
+            "message": "Task not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    task.delete()
+    return Response({
+        "success": True,
+        "message": "Task deleted successfully"
+    }, status=status.HTTP_204_NO_CONTENT)
+
+
